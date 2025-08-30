@@ -161,22 +161,46 @@
 <body class="bg-gray-900 text-gray-300">
 
     <div class="container">
+        <div class="flex justify-end mb-2">
+            <label for="uiLanguage" class="text-sm font-medium text-gray-400 mr-2" data-i18n="uiLanguageLabel">界面语言:</label>
+            <select id="uiLanguage" class="p-1.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
         <header class="text-center mb-10">
-            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 pt-4">Groq Whisper API 转 SRT</h1>
-            <p class="text-gray-400 mt-2 text-sm">通过 Groq API 将音频文件转录并转换为 SRT 格式。</p>
+            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 pt-4" data-i18n="pageTitle">Groq Whisper API 转 SRT</h1>
+            <p class="text-gray-400 mt-2 text-sm" data-i18n="subtitle">通过 Groq API 将音频文件转录并转换为 SRT 格式。</p>
         </header>
 
         <div class="mb-6">
-            <label for="groqApiKey" class="block text-sm font-medium text-gray-400 mb-1">Groq API 密钥:</label>
-            <input type="password" id="groqApiKey" name="groqApiKey" placeholder="请输入您的 Groq API 密钥"
+            <label for="groqApiKey" class="block text-sm font-medium text-gray-400 mb-1" data-i18n="apiKeyLabel">Groq API 密钥:</label>
+            <input type="password" id="groqApiKey" name="groqApiKey" placeholder="请输入您的 Groq API 密钥" data-i18n-placeholder="apiKeyPlaceholder"
                    class="w-full p-2.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500">
         </div>
 
         <div class="mb-6">
-            <label for="groqModel" class="block text-sm font-medium text-gray-400 mb-1">选择模型:</label>
+            <label for="groqModel" class="block text-sm font-medium text-gray-400 mb-1" data-i18n="modelLabel">选择模型:</label>
             <select id="groqModel" name="groqModel" class="w-full p-2.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <option value="whisper-large-v3" selected>Whisper Large V3 (默认)</option>
-                <option value="whisper-large-v3-turbo">Whisper Large V3 Turbo</option>
+                <option value="whisper-large-v3" selected data-i18n="modelOptionDefault">Whisper Large V3 (默认)</option>
+                <option value="whisper-large-v3-turbo" data-i18n="modelOptionTurbo">Whisper Large V3 Turbo</option>
+            </select>
+        </div>
+
+        <div class="mb-6">
+            <label for="languageSelect" class="block text-sm font-medium text-gray-400 mb-1" data-i18n="transcriptionLangLabel">选择语言（可选）:</label>
+            <select id="languageSelect" name="languageSelect" class="w-full p-2.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="" data-i18n="autoDetect">自动检测</option>
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+                <option value="ja">日本語</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
+                <option value="de">Deutsch</option>
+                <option value="ko">한국어</option>
+                <option value="it">Italiano</option>
+                <option value="pt">Português</option>
+                <option value="ru">Русский</option>
             </select>
         </div>
 
@@ -185,8 +209,8 @@
             <svg class="icon mx-auto text-gray-500 group-hover:text-blue-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 5.75 5.75 0 011.344 11.09A4.5 4.5 0 0112 21.75v-2.25" />
             </svg>
-            <p id="uploadText" class="text-gray-400 group-hover:text-gray-200">点击此处或 <span class="font-semibold text-blue-400">拖拽</span> 音频文件到这里上传</p>
-            <p class="text-xs text-gray-500 mt-1">(例如: .mp3, .wav, .m4a, .ogg, .flac, .opus)</p>
+            <p id="uploadText" class="text-gray-400 group-hover:text-gray-200" data-i18n-html="uploadInstruction">点击此处或 <span class="font-semibold text-blue-400">拖拽</span> 音频文件到这里上传</p>
+            <p class="text-xs text-gray-500 mt-1" data-i18n="uploadHint">(例如: .mp3, .wav, .m4a, .ogg, .flac, .opus)</p>
             <p id="fileName" class="text-xs text-gray-500 mt-2"></p>
         </div>
         
@@ -195,7 +219,7 @@
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
-                清空
+                <span data-i18n="clearBtn">清空</span>
             </button>
         </div>
 
@@ -207,13 +231,13 @@
         </div>
         
         <div id="srtOutputSection" class="mb-6 hidden"> <div class="flex justify-between items-center mb-3">
-                <h2 class="text-xl font-semibold text-emerald-400">SRT 输出:</h2>
+                <h2 class="text-xl font-semibold text-emerald-400" data-i18n="srtOutputLabel">SRT 输出:</h2>
                 <button id="toggleSrtBtn" class="btn btn-secondary btn-sm py-1 px-3 text-xs">
-                    <span id="toggleSrtBtnText">收起</span>
+                    <span id="toggleSrtBtnText" data-i18n="collapse">收起</span>
                 </button>
             </div>
             <div id="srtOutputContainer" class="bg-gray-700 p-4 rounded-md border border-gray-600">
-                <pre id="srtOutput" class="text-sm">这里将显示转换后的 SRT 内容...</pre>
+                <pre id="srtOutput" class="text-sm"></pre>
             </div>
         </div>
 
@@ -221,13 +245,13 @@
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125V17.25m0 0v1.125c0 .621.504 1.125 1.125 1.125h1.5v-2.25" />
                 </svg>
-                复制 SRT
+                <span data-i18n="copySrt">复制 SRT</span>
             </button>
             <button id="downloadBtn" class="btn btn-primary" disabled>
                 <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
-                下载 .srt
+                <span data-i18n="downloadSrt">下载 .srt</span>
             </button>
         </div>
     </div>
@@ -238,11 +262,11 @@
                  <svg class="icon text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
                 </svg>
-                <h3 class="text-xl font-semibold text-red-400">发生错误</h3>
+                <h3 class="text-xl font-semibold text-red-400" data-i18n="errorTitle">发生错误</h3>
             </div>
             <p id="errorMessage" class="text-gray-400"></p>
             <div class="mt-6 text-right">
-                <button id="closeModalBtn" class="btn btn-secondary px-4 py-2">关闭</button>
+                <button id="closeModalBtn" class="btn btn-secondary px-4 py-2" data-i18n="closeBtn">关闭</button>
             </div>
         </div>
     </div>
@@ -252,7 +276,8 @@
     <script>
         const groqApiKeyInput = document.getElementById('groqApiKey');
         const groqModelInput = document.getElementById('groqModel');
-        // const apiEndpointInput = document.getElementById('apiEndpoint'); // Removed
+        const languageSelect = document.getElementById('languageSelect');
+        const uiLanguageSelect = document.getElementById('uiLanguage');
         const audioFileInput = document.getElementById('audioFile');
         const uploadArea = document.getElementById('uploadArea');
         const fileNameDisplay = document.getElementById('fileName');
@@ -265,41 +290,172 @@
         const srtActions = document.getElementById('srtActions');
         const copyBtn = document.getElementById('copyBtn');
         const downloadBtn = document.getElementById('downloadBtn');
-        
+
         const errorModal = document.getElementById('errorModal');
         const errorMessage = document.getElementById('errorMessage');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const notificationElement = document.getElementById('notification');
-        
+
         const progressContainerOuter = document.getElementById('progressContainerOuter');
         const progressBar = document.getElementById('progressBar');
         const progressText = document.getElementById('progressText');
 
+        const translations = {
+            zh: {
+                uiLanguageLabel: "界面语言:",
+                pageTitle: "Groq Whisper API 转 SRT",
+                subtitle: "通过 Groq API 将音频文件转录并转换为 SRT 格式。",
+                apiKeyLabel: "Groq API 密钥:",
+                apiKeyPlaceholder: "请输入您的 Groq API 密钥",
+                modelLabel: "选择模型:",
+                modelOptionDefault: "Whisper Large V3 (默认)",
+                modelOptionTurbo: "Whisper Large V3 Turbo",
+                transcriptionLangLabel: "选择语言（可选）:",
+                autoDetect: "自动检测",
+                uploadInstruction: "点击此处或 <span class=\"font-semibold text-blue-400\">拖拽</span> 音频文件到这里上传",
+                uploadHint: "(例如: .mp3, .wav, .m4a, .ogg, .flac, .opus)",
+                clearBtn: "清空",
+                srtOutputLabel: "SRT 输出:",
+                collapse: "收起",
+                expand: "展开",
+                srtPlaceholder: "这里将显示转换后的 SRT 内容...",
+                copySrt: "复制 SRT",
+                downloadSrt: "下载 .srt",
+                errorTitle: "发生错误",
+                closeBtn: "关闭",
+                transcribing: "正在转录音频，请稍候...",
+                requestingTranscription: "正在请求 Groq API 进行转录...",
+                apiKeyRequired: "请输入您的 Groq API 密钥。",
+                fileEmpty: "上传的音频文件为空，请选择一个有效的文件。",
+                invalidAudioType: "请上传有效的音频文件 (例如: .mp3, .wav, .m4a 等)。",
+                groqRequestFailed: "Groq API 请求失败",
+                unknownError: "未知错误",
+                groqResponseInvalid: "Groq API 响应格式不正确，未能找到字幕片段。",
+                apiCallError: "调用 Groq API 时出错",
+                apiRequestFailedText: "API 请求失败。",
+                apiResponseErrorText: "API 响应格式错误。",
+                apiCallErrorText: "API 调用出错。",
+                noSubtitleData: "没有可转换的字幕数据。",
+                srtGenerationEmpty: "未能从转录结果中生成有效的 SRT 内容。",
+                srtConversionError: "SRT 转换过程中发生错误",
+                srtConversionFailed: "SRT 转换失败。",
+                contentCleared: "内容已清空。",
+                selectedFile: "已选择:",
+                transcribeSuccess: "音频转录成功并已转换为 SRT!",
+                srtCopied: "SRT 内容已复制到剪贴板！",
+                noSrtToCopy: "没有可复制的 SRT 内容。",
+                copyFailed: "复制失败: ",
+                downloadStarted: "SRT 文件已开始下载。",
+                noContentToDownload: "没有可下载的内容。"
+            },
+            en: {
+                uiLanguageLabel: "UI Language:",
+                pageTitle: "Groq Whisper API to SRT",
+                subtitle: "Transcribe audio via Groq API and convert to SRT format.",
+                apiKeyLabel: "Groq API Key:",
+                apiKeyPlaceholder: "Enter your Groq API key",
+                modelLabel: "Select model:",
+                modelOptionDefault: "Whisper Large V3 (default)",
+                modelOptionTurbo: "Whisper Large V3 Turbo",
+                transcriptionLangLabel: "Select language (optional):",
+                autoDetect: "Auto detect",
+                uploadInstruction: "Click here or <span class=\"font-semibold text-blue-400\">drag</span> an audio file to upload",
+                uploadHint: "(e.g., .mp3, .wav, .m4a, .ogg, .flac, .opus)",
+                clearBtn: "Clear",
+                srtOutputLabel: "SRT Output:",
+                collapse: "Collapse",
+                expand: "Expand",
+                srtPlaceholder: "Converted SRT content will appear here...",
+                copySrt: "Copy SRT",
+                downloadSrt: "Download .srt",
+                errorTitle: "Error occurred",
+                closeBtn: "Close",
+                transcribing: "Transcribing audio, please wait...",
+                requestingTranscription: "Requesting Groq API transcription...",
+                apiKeyRequired: "Please enter your Groq API key.",
+                fileEmpty: "Uploaded audio file is empty. Please select a valid file.",
+                invalidAudioType: "Please upload a valid audio file (e.g., .mp3, .wav, .m4a).",
+                groqRequestFailed: "Groq API request failed",
+                unknownError: "Unknown error",
+                groqResponseInvalid: "Groq API response invalid; no segments found.",
+                apiCallError: "Error calling Groq API",
+                apiRequestFailedText: "API request failed.",
+                apiResponseErrorText: "API response error.",
+                apiCallErrorText: "API call error.",
+                noSubtitleData: "No subtitle data to convert.",
+                srtGenerationEmpty: "Could not generate valid SRT content from transcription.",
+                srtConversionError: "Error during SRT conversion",
+                srtConversionFailed: "SRT conversion failed.",
+                contentCleared: "Content cleared.",
+                selectedFile: "Selected:",
+                transcribeSuccess: "Audio transcribed and converted to SRT!",
+                srtCopied: "SRT content copied to clipboard!",
+                noSrtToCopy: "No SRT content to copy.",
+                copyFailed: "Copy failed: ",
+                downloadStarted: "SRT file download started.",
+                noContentToDownload: "No content to download."
+            }
+        };
+
         const API_KEY_STORAGE_KEY = 'groqApiKey';
         const GROQ_OFFICIAL_ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
-
-        let uploadedAudioFile = null; 
-        let originalFileName = 'output'; 
+        let uploadedAudioFile = null;
+        let originalFileName = 'output';
         let isSrtVisible = true;
+        let currentLanguage = 'zh';
 
-        // Load API Key from localStorage on page load
+        function t(key) {
+            return translations[currentLanguage][key] || key;
+        }
+
+        function updateSrtPlaceholder() {
+            if (!srtOutput.textContent || srtOutput.textContent === translations.zh.srtPlaceholder || srtOutput.textContent === translations.en.srtPlaceholder) {
+                srtOutput.textContent = t('srtPlaceholder');
+            }
+        }
+
+        function applyTranslations() {
+            document.documentElement.lang = currentLanguage === 'en' ? 'en' : 'zh-CN';
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const val = translations[currentLanguage][el.dataset.i18n];
+                if (val) el.textContent = val;
+            });
+            document.querySelectorAll('[data-i18n-html]').forEach(el => {
+                const val = translations[currentLanguage][el.dataset.i18nHtml];
+                if (val) el.innerHTML = val;
+            });
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const val = translations[currentLanguage][el.dataset.i18nPlaceholder];
+                if (val) el.placeholder = val;
+            });
+            updateSrtPlaceholder();
+            if (uploadedAudioFile) {
+                fileNameDisplay.textContent = `${t('selectedFile')} ${uploadedAudioFile.name}`;
+            }
+            toggleSrtBtnText.textContent = t(isSrtVisible ? 'collapse' : 'expand');
+        }
+
+        uiLanguageSelect.addEventListener('change', () => {
+            currentLanguage = uiLanguageSelect.value;
+            applyTranslations();
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             const storedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
             if (storedApiKey) {
                 groqApiKeyInput.value = storedApiKey;
             }
+            applyTranslations();
         });
 
-        // Save API Key to localStorage when it changes
         groqApiKeyInput.addEventListener('input', () => {
             localStorage.setItem(API_KEY_STORAGE_KEY, groqApiKeyInput.value.trim());
         });
 
-
         function showNotification(message, type = 'success') {
             notificationElement.textContent = message;
-            notificationElement.className = 'notification'; 
+            notificationElement.className = 'notification';
             notificationElement.classList.add(type, 'show');
             setTimeout(() => {
                 notificationElement.classList.remove('show');
@@ -311,17 +467,17 @@
             errorModal.classList.add('active');
         }
 
-        function showLoading(isLoading, message = "正在转录音频，请稍候...") {
+        function showLoading(isLoading, message = t('transcribing')) {
             if (isLoading) {
                 progressContainerOuter.classList.remove('hidden');
                 progressText.textContent = message;
-                progressBar.style.width = '50%'; 
+                progressBar.style.width = '50%';
             } else {
-                progressBar.style.width = '100%'; 
+                progressBar.style.width = '100%';
                 setTimeout(() => {
                     progressContainerOuter.classList.add('hidden');
-                    progressBar.style.width = '0%'; 
-                }, 500); 
+                    progressBar.style.width = '0%';
+                }, 500);
             }
         }
 
@@ -356,86 +512,84 @@
         async function handleAudioFileAndTranscribe(file) {
             const apiKey = groqApiKeyInput.value.trim();
             if (!apiKey) {
-                showError('请输入您的 Groq API 密钥。');
-                audioFileInput.value = ''; 
+                showError(t('apiKeyRequired'));
+                audioFileInput.value = '';
                 return;
             }
 
             if (file.size === 0) {
-                showError('上传的音频文件为空，请选择一个有效的文件。');
+                showError(t('fileEmpty'));
                 audioFileInput.value = '';
                 return;
             }
 
             const selectedModel = groqModelInput.value;
-            const selectedEndpoint = GROQ_OFFICIAL_ENDPOINT; // Hardcoded official endpoint
-
+            const selectedEndpoint = GROQ_OFFICIAL_ENDPOINT;
+            const selectedLanguage = languageSelect.value;
 
             const acceptedAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/x-m4a', 'audio/m4a', 'audio/ogg', 'audio/flac', 'audio/opus'];
-            if (!acceptedAudioTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|ogg|flac|opus)$/i) ) {
-                showError('请上传有效的音频文件 (例如: .mp3, .wav, .m4a 等)。');
+            if (!acceptedAudioTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|ogg|flac|opus)$/i)) {
+                showError(t('invalidAudioType'));
                 audioFileInput.value = '';
                 return;
             }
 
-            fileNameDisplay.textContent = `已选择: ${file.name}`;
-            originalFileName = file.name.replace(/\.[^/.]+$/, ""); 
-            uploadedAudioFile = file; 
+            fileNameDisplay.textContent = `${t('selectedFile')} ${file.name}`;
+            originalFileName = file.name.replace(/\.[^/.]+$/, "");
+            uploadedAudioFile = file;
 
             showLoading(true);
-            srtOutput.textContent = '正在请求 Groq API 进行转录...';
+            srtOutput.textContent = t('requestingTranscription');
             srtOutputSection.classList.remove('hidden');
-            srtActions.classList.add('hidden'); 
-
+            srtActions.classList.add('hidden');
 
             const formData = new FormData();
-            formData.append('file', uploadedAudioFile, file.name); 
-            formData.append('model', selectedModel); 
-            formData.append('response_format', 'verbose_json'); 
-            // formData.append('language', 'zh'); 
-            // formData.append('temperature', '0.2'); 
+            formData.append('file', uploadedAudioFile, file.name);
+            formData.append('model', selectedModel);
+            formData.append('response_format', 'verbose_json');
+            if (selectedLanguage) {
+                formData.append('language', selectedLanguage);
+            }
 
             try {
-                const response = await fetch(selectedEndpoint, { 
+                const response = await fetch(selectedEndpoint, {
                     method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${apiKey}`
-                    },
+                    headers: { 'Authorization': `Bearer ${apiKey}` },
                     body: formData
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     console.error('Groq API Error:', errorData);
-                    showError(`Groq API 请求失败: ${response.status} ${response.statusText}. ${errorData?.error?.message || '未知错误'}`);
-                    srtOutput.textContent = 'API 请求失败。';
+                    showError(`${t('groqRequestFailed')}: ${response.status} ${response.statusText}. ${errorData?.error?.message || t('unknownError')}`);
+                    srtOutput.textContent = t('apiRequestFailedText');
                     showLoading(false);
                     return;
                 }
 
                 const transcriptionResult = await response.json();
-                showLoading(false); 
-                
+                showLoading(false);
+
                 if (transcriptionResult && transcriptionResult.segments && Array.isArray(transcriptionResult.segments)) {
-                    performSrtConversion(transcriptionResult.segments); 
-                    showNotification('音频转录成功并已转换为 SRT!', 'success');
+                    performSrtConversion(transcriptionResult.segments);
+                    showNotification(t('transcribeSuccess'), 'success');
                 } else {
                     console.error('Groq API 响应格式不正确:', transcriptionResult);
-                    showError('Groq API 响应格式不正确，未能找到字幕片段。');
-                    srtOutput.textContent = 'API 响应格式错误。';
+                    showError(t('groqResponseInvalid'));
+                    srtOutput.textContent = t('apiResponseErrorText');
                 }
 
             } catch (error) {
                 showLoading(false);
                 console.error('调用 Groq API 时出错:', error);
-                showError(`调用 Groq API 时出错: ${error.message}`);
-                srtOutput.textContent = 'API 调用出错。';
+                showError(`${t('apiCallError')}: ${error.message}`);
+                srtOutput.textContent = t('apiCallErrorText');
             }
         }
-        
-        function performSrtConversion(segmentsData) { 
+
+        function performSrtConversion(segmentsData) {
             if (!segmentsData) {
-                showError('没有可转换的字幕数据。');
+                showError(t('noSubtitleData'));
                 return;
             }
             try {
@@ -443,7 +597,7 @@
                 segmentsData.forEach((segment, index) => {
                     if (typeof segment.start !== 'number' || typeof segment.end !== 'number' || typeof segment.text !== 'string') {
                         console.warn(`Skipping invalid segment at index ${index}:`, segment);
-                        return; 
+                        return;
                     }
                     const startTime = formatTime(segment.start);
                     const endTime = formatTime(segment.end);
@@ -452,7 +606,7 @@
                 });
 
                 if (srtContent.trim() === '') {
-                   srtOutput.textContent = '未能从转录结果中生成有效的 SRT 内容。';
+                   srtOutput.textContent = t('srtGenerationEmpty');
                    copyBtn.disabled = true;
                    downloadBtn.disabled = true;
                 } else {
@@ -464,11 +618,11 @@
                 srtActions.classList.remove('hidden');
                 isSrtVisible = true;
                 srtOutputContainer.classList.remove('hidden');
-                toggleSrtBtnText.textContent = '收起';
+                toggleSrtBtnText.textContent = t('collapse');
 
             } catch (error) {
-                showError(`SRT 转换过程中发生错误: ${error.message}`);
-                srtOutput.textContent = 'SRT 转换失败。';
+                showError(`${t('srtConversionError')}: ${error.message}`);
+                srtOutput.textContent = t('srtConversionFailed');
                 copyBtn.disabled = true;
                 downloadBtn.disabled = true;
                 srtOutputSection.classList.remove('hidden');
@@ -486,15 +640,14 @@
 
         clearBtn.addEventListener('click', () => {
             resetUI();
-            showNotification('内容已清空。', 'success');
+            showNotification(t('contentCleared'), 'success');
         });
 
         function resetUI() {
-            audioFileInput.value = ''; 
-            // API Key is kept, but other fields are reset
+            audioFileInput.value = '';
             fileNameDisplay.textContent = '';
             uploadedAudioFile = null;
-            srtOutput.textContent = '这里将显示转换后的 SRT 内容...';
+            srtOutput.textContent = t('srtPlaceholder');
             copyBtn.disabled = true;
             downloadBtn.disabled = true;
             originalFileName = 'output';
@@ -502,7 +655,7 @@
             srtActions.classList.add('hidden');
             isSrtVisible = true;
             srtOutputContainer.classList.remove('hidden');
-            toggleSrtBtnText.textContent = '收起';
+            toggleSrtBtnText.textContent = t('collapse');
             progressContainerOuter.classList.add('hidden');
             progressBar.style.width = '0%';
         }
@@ -511,21 +664,22 @@
             isSrtVisible = !isSrtVisible;
             if (isSrtVisible) {
                 srtOutputContainer.classList.remove('hidden');
-                toggleSrtBtnText.textContent = '收起';
+                toggleSrtBtnText.textContent = t('collapse');
             } else {
                 srtOutputContainer.classList.add('hidden');
-                toggleSrtBtnText.textContent = '展开';
+                toggleSrtBtnText.textContent = t('expand');
             }
         });
 
         copyBtn.addEventListener('click', () => {
-            if (srtOutput.textContent && srtOutput.textContent !== '这里将显示转换后的 SRT 内容...' && !srtOutput.textContent.startsWith('API') && !srtOutput.textContent.startsWith('SRT 转换失败')) {
-                copyToClipboard(srtOutput.textContent, 'SRT 内容已复制到剪贴板！');
+            if (srtOutput.textContent && srtOutput.textContent !== t('srtPlaceholder') &&
+                ![t('apiRequestFailedText'), t('apiResponseErrorText'), t('apiCallErrorText'), t('srtConversionFailed')].some(prefix => srtOutput.textContent.startsWith(prefix))) {
+                copyToClipboard(srtOutput.textContent, t('srtCopied'));
             } else {
-                showError('没有可复制的 SRT 内容。');
+                showError(t('noSrtToCopy'));
             }
         });
-        
+
         function copyToClipboard(text, message) {
             const tempTextArea = document.createElement('textarea');
             tempTextArea.value = text;
@@ -535,7 +689,7 @@
                 document.execCommand('copy');
                 showNotification(message, 'success');
             } catch (err) {
-                showError('复制失败: ' + err);
+                showError(t('copyFailed') + err);
             }
             if (document.body.contains(tempTextArea)){
                 document.body.removeChild(tempTextArea);
@@ -543,21 +697,22 @@
         }
 
         downloadBtn.addEventListener('click', () => {
-            if (srtOutput.textContent && srtOutput.textContent !== '这里将显示转换后的 SRT 内容...' && !srtOutput.textContent.startsWith('API') && !srtOutput.textContent.startsWith('SRT 转换失败')) {
+            if (srtOutput.textContent && srtOutput.textContent !== t('srtPlaceholder') &&
+                ![t('apiRequestFailedText'), t('apiResponseErrorText'), t('apiCallErrorText'), t('srtConversionFailed')].some(prefix => srtOutput.textContent.startsWith(prefix))) {
                 const blob = new Blob([srtOutput.textContent], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${originalFileName}.srt`; 
+                a.download = `${originalFileName}.srt`;
                 document.body.appendChild(a);
                 a.click();
                 if (document.body.contains(a)) {
                     document.body.removeChild(a);
                 }
                 URL.revokeObjectURL(url);
-                showNotification('SRT 文件已开始下载。', 'success');
+                showNotification(t('downloadStarted'), 'success');
             } else {
-                showError('没有可下载的内容。');
+                showError(t('noContentToDownload'));
             }
         });
 
