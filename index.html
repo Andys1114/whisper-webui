@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Groq Whisper API 转 SRT 工具</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #111827; /* bg-gray-900 */
+            color: #d1d5db; /* text-gray-300 */
+        }
+        .container {
+            max-width: 768px; /* md */
+            margin: 3rem auto;
+            padding: 2rem;
+            background-color: #1f2937; /* bg-gray-800 */
+            border-radius: 0.75rem; /* rounded-xl */
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .upload-area {
+            border: 2px dashed #4b5563; /* border-gray-600 */
+            padding: 2.5rem; /* p-10 */
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            background-color: #374151; /* bg-gray-700 */
+            border-radius: 0.5rem; /* rounded-lg */
+        }
+        .upload-area:hover, .upload-area.dragover {
+            background-color: #4b5563; /* bg-gray-600 */
+            border-color: #60a5fa; /* border-blue-400 */
+        }
+        #srtOutput {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            min-height: 150px; 
+            max-height: 400px; /* Limit max height for scroll */
+            overflow-y: auto; /* Add scroll for long content */
+            background-color: #111827; /* bg-gray-900 */
+            color: #e5e7eb; /* text-gray-200 */
+            border: 1px solid #374151; /* border-gray-700 */
+            border-radius: 0.375rem; /* rounded-md */
+            padding: 1rem;
+        }
+        #srtOutput::-webkit-scrollbar {
+            width: 8px;
+        }
+        #srtOutput::-webkit-scrollbar-track {
+            background: #374151; /* bg-gray-700 */
+            border-radius: 10px;
+        }
+        #srtOutput::-webkit-scrollbar-thumb {
+            background: #4b5563; /* bg-gray-600 */
+            border-radius: 10px;
+        }
+        #srtOutput::-webkit-scrollbar-thumb:hover {
+            background: #6b7280; /* bg-gray-500 */
+        }
+
+        .btn {
+            padding: 0.625rem 1.25rem; /* py-2.5 px-5 */
+            border-radius: 0.5rem; /* rounded-lg */
+            font-weight: 500; /* medium */
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+        }
+        .btn-primary {
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb; /* bg-blue-600 */
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .btn-primary:disabled {
+            background-color: #4b5563; /* bg-gray-600 */
+            color: #9ca3af; /* text-gray-400 */
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn-secondary {
+            background-color: #4b5563; /* bg-gray-600 */
+            color: #e5e7eb; /* text-gray-200 */
+        }
+        .btn-secondary:hover {
+            background-color: #6b7280; /* bg-gray-500 */
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(17, 24, 39, 0.8); /* bg-gray-900 with opacity */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background-color: #1f2937; /* bg-gray-800 */
+            color: #d1d5db; /* text-gray-300 */
+            padding: 2rem;
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+            width: 90%;
+            max-width: 400px; /* sm */
+        }
+        .icon {
+            width: 1.25rem; /* w-5 */
+            height: 1.25rem; /* h-5 */
+            margin-right: 0.5rem; /* mr-2 */
+        }
+        .notification {
+            position: fixed;
+            bottom: 1.25rem; /* bottom-5 */
+            right: 1.25rem; /* right-5 */
+            padding: 0.75rem 1.25rem; /* py-3 px-5 */
+            border-radius: 0.5rem; /* rounded-lg */
+            color: white;
+            z-index: 2000;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .notification.success {
+            background-color: #10b981; /* bg-green-500 */
+        }
+        .notification.error {
+            background-color: #ef4444; /* bg-red-500 */
+        }
+        /* Progress Bar Styles */
+        #progressContainer {
+            background-color: #374151; /* bg-gray-700 */
+        }
+        #progressBar {
+            background-color: #3b82f6; /* bg-blue-500 */
+            transition: width 0.3s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-300">
+
+    <div class="container">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400 pt-4">Groq Whisper API 转 SRT</h1>
+            <p class="text-gray-400 mt-2 text-sm">通过 Groq API 将音频文件转录并转换为 SRT 格式。</p>
+        </header>
+
+        <div class="mb-6">
+            <label for="groqApiKey" class="block text-sm font-medium text-gray-400 mb-1">Groq API 密钥:</label>
+            <input type="password" id="groqApiKey" name="groqApiKey" placeholder="请输入您的 Groq API 密钥"
+                   class="w-full p-2.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500 placeholder-gray-500">
+        </div>
+
+        <div class="mb-6">
+            <label for="groqModel" class="block text-sm font-medium text-gray-400 mb-1">选择模型:</label>
+            <select id="groqModel" name="groqModel" class="w-full p-2.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <option value="whisper-large-v3" selected>Whisper Large V3 (默认)</option>
+                <option value="whisper-large-v3-turbo">Whisper Large V3 Turbo</option>
+            </select>
+        </div>
+
+        <div id="uploadArea" class="upload-area rounded-lg mb-8 group">
+            <input type="file" id="audioFile" accept="audio/*" class="hidden">
+            <svg class="icon mx-auto text-gray-500 group-hover:text-blue-400 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l3 3m-3-3l-3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.338-2.32 5.75 5.75 0 011.344 11.09A4.5 4.5 0 0112 21.75v-2.25" />
+            </svg>
+            <p id="uploadText" class="text-gray-400 group-hover:text-gray-200">点击此处或 <span class="font-semibold text-blue-400">拖拽</span> 音频文件到这里上传</p>
+            <p class="text-xs text-gray-500 mt-1">(例如: .mp3, .wav, .m4a, .ogg, .flac, .opus)</p>
+            <p id="fileName" class="text-xs text-gray-500 mt-2"></p>
+        </div>
+        
+        <div class="flex justify-center mb-2">
+             <button id="clearBtn" class="btn btn-secondary">
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                清空
+            </button>
+        </div>
+
+        <div id="progressContainerOuter" class="w-full mb-6 hidden">
+            <p id="progressText" class="text-center text-sm text-gray-400 mb-1"></p>
+            <div id="progressContainer" class="w-full bg-gray-600 rounded-full h-2.5">
+                <div id="progressBar" class="bg-blue-500 h-2.5 rounded-full" style="width: 0%;"></div>
+            </div>
+        </div>
+        
+        <div id="srtOutputSection" class="mb-6 hidden"> <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xl font-semibold text-emerald-400">SRT 输出:</h2>
+                <button id="toggleSrtBtn" class="btn btn-secondary btn-sm py-1 px-3 text-xs">
+                    <span id="toggleSrtBtnText">收起</span>
+                </button>
+            </div>
+            <div id="srtOutputContainer" class="bg-gray-700 p-4 rounded-md border border-gray-600">
+                <pre id="srtOutput" class="text-sm">这里将显示转换后的 SRT 内容...</pre>
+            </div>
+        </div>
+
+        <div id="srtActions" class="flex justify-end space-x-3 mb-4 hidden"> <button id="copyBtn" class="btn btn-primary" disabled>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125V17.25m0 0v1.125c0 .621.504 1.125 1.125 1.125h1.5v-2.25" />
+                </svg>
+                复制 SRT
+            </button>
+            <button id="downloadBtn" class="btn btn-primary" disabled>
+                <svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                下载 .srt
+            </button>
+        </div>
+    </div>
+
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="flex items-center mb-4">
+                 <svg class="icon text-red-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                </svg>
+                <h3 class="text-xl font-semibold text-red-400">发生错误</h3>
+            </div>
+            <p id="errorMessage" class="text-gray-400"></p>
+            <div class="mt-6 text-right">
+                <button id="closeModalBtn" class="btn btn-secondary px-4 py-2">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    
+    <script>
+        const groqApiKeyInput = document.getElementById('groqApiKey');
+        const groqModelInput = document.getElementById('groqModel');
+        // const apiEndpointInput = document.getElementById('apiEndpoint'); // Removed
+        const audioFileInput = document.getElementById('audioFile');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileNameDisplay = document.getElementById('fileName');
+        const clearBtn = document.getElementById('clearBtn');
+        const srtOutput = document.getElementById('srtOutput');
+        const srtOutputSection = document.getElementById('srtOutputSection');
+        const srtOutputContainer = document.getElementById('srtOutputContainer');
+        const toggleSrtBtn = document.getElementById('toggleSrtBtn');
+        const toggleSrtBtnText = document.getElementById('toggleSrtBtnText');
+        const srtActions = document.getElementById('srtActions');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        
+        const errorModal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const notificationElement = document.getElementById('notification');
+        
+        const progressContainerOuter = document.getElementById('progressContainerOuter');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+
+        const API_KEY_STORAGE_KEY = 'groqApiKey';
+        const GROQ_OFFICIAL_ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions';
+
+
+        let uploadedAudioFile = null; 
+        let originalFileName = 'output'; 
+        let isSrtVisible = true;
+
+        // Load API Key from localStorage on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedApiKey = localStorage.getItem(API_KEY_STORAGE_KEY);
+            if (storedApiKey) {
+                groqApiKeyInput.value = storedApiKey;
+            }
+        });
+
+        // Save API Key to localStorage when it changes
+        groqApiKeyInput.addEventListener('input', () => {
+            localStorage.setItem(API_KEY_STORAGE_KEY, groqApiKeyInput.value.trim());
+        });
+
+
+        function showNotification(message, type = 'success') {
+            notificationElement.textContent = message;
+            notificationElement.className = 'notification'; 
+            notificationElement.classList.add(type, 'show');
+            setTimeout(() => {
+                notificationElement.classList.remove('show');
+            }, 3000);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.add('active');
+        }
+
+        function showLoading(isLoading, message = "正在转录音频，请稍候...") {
+            if (isLoading) {
+                progressContainerOuter.classList.remove('hidden');
+                progressText.textContent = message;
+                progressBar.style.width = '50%'; 
+            } else {
+                progressBar.style.width = '100%'; 
+                setTimeout(() => {
+                    progressContainerOuter.classList.add('hidden');
+                    progressBar.style.width = '0%'; 
+                }, 500); 
+            }
+        }
+
+        closeModalBtn.addEventListener('click', () => {
+            errorModal.classList.remove('active');
+        });
+
+        uploadArea.addEventListener('click', () => audioFileInput.click());
+        uploadArea.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (event) => {
+            event.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                handleAudioFileAndTranscribe(files[0]);
+            }
+        });
+
+        audioFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                handleAudioFileAndTranscribe(file);
+            }
+        });
+
+        async function handleAudioFileAndTranscribe(file) {
+            const apiKey = groqApiKeyInput.value.trim();
+            if (!apiKey) {
+                showError('请输入您的 Groq API 密钥。');
+                audioFileInput.value = ''; 
+                return;
+            }
+
+            if (file.size === 0) {
+                showError('上传的音频文件为空，请选择一个有效的文件。');
+                audioFileInput.value = '';
+                return;
+            }
+
+            const selectedModel = groqModelInput.value;
+            const selectedEndpoint = GROQ_OFFICIAL_ENDPOINT; // Hardcoded official endpoint
+
+
+            const acceptedAudioTypes = ['audio/mpeg', 'audio/wav', 'audio/mp3', 'audio/x-m4a', 'audio/m4a', 'audio/ogg', 'audio/flac', 'audio/opus'];
+            if (!acceptedAudioTypes.includes(file.type) && !file.name.match(/\.(mp3|wav|m4a|ogg|flac|opus)$/i) ) {
+                showError('请上传有效的音频文件 (例如: .mp3, .wav, .m4a 等)。');
+                audioFileInput.value = '';
+                return;
+            }
+
+            fileNameDisplay.textContent = `已选择: ${file.name}`;
+            originalFileName = file.name.replace(/\.[^/.]+$/, ""); 
+            uploadedAudioFile = file; 
+
+            showLoading(true);
+            srtOutput.textContent = '正在请求 Groq API 进行转录...';
+            srtOutputSection.classList.remove('hidden');
+            srtActions.classList.add('hidden'); 
+
+
+            const formData = new FormData();
+            formData.append('file', uploadedAudioFile, file.name); 
+            formData.append('model', selectedModel); 
+            formData.append('response_format', 'verbose_json'); 
+            // formData.append('language', 'zh'); 
+            // formData.append('temperature', '0.2'); 
+
+            try {
+                const response = await fetch(selectedEndpoint, { 
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('Groq API Error:', errorData);
+                    showError(`Groq API 请求失败: ${response.status} ${response.statusText}. ${errorData?.error?.message || '未知错误'}`);
+                    srtOutput.textContent = 'API 请求失败。';
+                    showLoading(false);
+                    return;
+                }
+
+                const transcriptionResult = await response.json();
+                showLoading(false); 
+                
+                if (transcriptionResult && transcriptionResult.segments && Array.isArray(transcriptionResult.segments)) {
+                    performSrtConversion(transcriptionResult.segments); 
+                    showNotification('音频转录成功并已转换为 SRT!', 'success');
+                } else {
+                    console.error('Groq API 响应格式不正确:', transcriptionResult);
+                    showError('Groq API 响应格式不正确，未能找到字幕片段。');
+                    srtOutput.textContent = 'API 响应格式错误。';
+                }
+
+            } catch (error) {
+                showLoading(false);
+                console.error('调用 Groq API 时出错:', error);
+                showError(`调用 Groq API 时出错: ${error.message}`);
+                srtOutput.textContent = 'API 调用出错。';
+            }
+        }
+        
+        function performSrtConversion(segmentsData) { 
+            if (!segmentsData) {
+                showError('没有可转换的字幕数据。');
+                return;
+            }
+            try {
+                let srtContent = '';
+                segmentsData.forEach((segment, index) => {
+                    if (typeof segment.start !== 'number' || typeof segment.end !== 'number' || typeof segment.text !== 'string') {
+                        console.warn(`Skipping invalid segment at index ${index}:`, segment);
+                        return; 
+                    }
+                    const startTime = formatTime(segment.start);
+                    const endTime = formatTime(segment.end);
+                    const text = segment.text.trim();
+                    srtContent += `${index + 1}\n${startTime} --> ${endTime}\n${text}\n\n`;
+                });
+
+                if (srtContent.trim() === '') {
+                   srtOutput.textContent = '未能从转录结果中生成有效的 SRT 内容。';
+                   copyBtn.disabled = true;
+                   downloadBtn.disabled = true;
+                } else {
+                    srtOutput.textContent = srtContent;
+                    copyBtn.disabled = false;
+                    downloadBtn.disabled = false;
+                }
+                srtOutputSection.classList.remove('hidden');
+                srtActions.classList.remove('hidden');
+                isSrtVisible = true;
+                srtOutputContainer.classList.remove('hidden');
+                toggleSrtBtnText.textContent = '收起';
+
+            } catch (error) {
+                showError(`SRT 转换过程中发生错误: ${error.message}`);
+                srtOutput.textContent = 'SRT 转换失败。';
+                copyBtn.disabled = true;
+                downloadBtn.disabled = true;
+                srtOutputSection.classList.remove('hidden');
+                srtActions.classList.remove('hidden');
+            }
+        }
+
+        function formatTime(timeInSeconds) {
+            const hours = Math.floor(timeInSeconds / 3600);
+            const minutes = Math.floor((timeInSeconds % 3600) / 60);
+            const seconds = Math.floor(timeInSeconds % 60);
+            const milliseconds = Math.round((timeInSeconds - Math.floor(timeInSeconds)) * 1000);
+            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')},${String(milliseconds).padStart(3, '0')}`;
+        }
+
+        clearBtn.addEventListener('click', () => {
+            resetUI();
+            showNotification('内容已清空。', 'success');
+        });
+
+        function resetUI() {
+            audioFileInput.value = ''; 
+            // API Key is kept, but other fields are reset
+            fileNameDisplay.textContent = '';
+            uploadedAudioFile = null;
+            srtOutput.textContent = '这里将显示转换后的 SRT 内容...';
+            copyBtn.disabled = true;
+            downloadBtn.disabled = true;
+            originalFileName = 'output';
+            srtOutputSection.classList.add('hidden');
+            srtActions.classList.add('hidden');
+            isSrtVisible = true;
+            srtOutputContainer.classList.remove('hidden');
+            toggleSrtBtnText.textContent = '收起';
+            progressContainerOuter.classList.add('hidden');
+            progressBar.style.width = '0%';
+        }
+
+        toggleSrtBtn.addEventListener('click', () => {
+            isSrtVisible = !isSrtVisible;
+            if (isSrtVisible) {
+                srtOutputContainer.classList.remove('hidden');
+                toggleSrtBtnText.textContent = '收起';
+            } else {
+                srtOutputContainer.classList.add('hidden');
+                toggleSrtBtnText.textContent = '展开';
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            if (srtOutput.textContent && srtOutput.textContent !== '这里将显示转换后的 SRT 内容...' && !srtOutput.textContent.startsWith('API') && !srtOutput.textContent.startsWith('SRT 转换失败')) {
+                copyToClipboard(srtOutput.textContent, 'SRT 内容已复制到剪贴板！');
+            } else {
+                showError('没有可复制的 SRT 内容。');
+            }
+        });
+        
+        function copyToClipboard(text, message) {
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = text;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            try {
+                document.execCommand('copy');
+                showNotification(message, 'success');
+            } catch (err) {
+                showError('复制失败: ' + err);
+            }
+            if (document.body.contains(tempTextArea)){
+                document.body.removeChild(tempTextArea);
+            }
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (srtOutput.textContent && srtOutput.textContent !== '这里将显示转换后的 SRT 内容...' && !srtOutput.textContent.startsWith('API') && !srtOutput.textContent.startsWith('SRT 转换失败')) {
+                const blob = new Blob([srtOutput.textContent], { type: 'text/plain;charset=utf-8' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${originalFileName}.srt`; 
+                document.body.appendChild(a);
+                a.click();
+                if (document.body.contains(a)) {
+                    document.body.removeChild(a);
+                }
+                URL.revokeObjectURL(url);
+                showNotification('SRT 文件已开始下载。', 'success');
+            } else {
+                showError('没有可下载的内容。');
+            }
+        });
+
+    </script>
+</body>
+</html>
