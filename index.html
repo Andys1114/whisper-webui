@@ -171,9 +171,11 @@
 <body class="bg-gray-900 text-gray-300">
 
     <div class="container">
+
         <div class="flex justify-end mb-2 relative">
             <button id="uiLanguageToggle" class="p-2 text-2xl text-gray-400 hover:text-gray-200" data-i18n-title="uiLanguageTitle" title="界面语言">🌐</button>
             <select id="uiLanguage" class="hidden absolute right-0 mt-2 p-1.5 bg-gray-700 border border-gray-600 text-gray-200 rounded-md">
+
                 <option value="zh">中文</option>
                 <option value="en">English</option>
             </select>
@@ -288,6 +290,7 @@
         const groqModelInput = document.getElementById('groqModel');
         const languageSelect = document.getElementById('languageSelect');
         const uiLanguageSelect = document.getElementById('uiLanguage');
+codex/add-language-selection-feature-3zf4rz
         const uiLanguageToggle = document.getElementById('uiLanguageToggle');
         const audioFileInput = document.getElementById('audioFile');
         const uploadArea = document.getElementById('uploadArea');
@@ -313,7 +316,9 @@
 
         const translations = {
             zh: {
+
                 uiLanguageTitle: "界面语言",
+
                 pageTitle: "Groq Whisper API 转 SRT",
                 subtitle: "通过 Groq API 将音频文件转录并转换为 SRT 格式。",
                 apiKeyLabel: "Groq API 密钥:",
@@ -360,7 +365,9 @@
                 noContentToDownload: "没有可下载的内容。"
             },
             en: {
+
                 uiLanguageTitle: "UI Language",
+
                 pageTitle: "Groq Whisper API to SRT",
                 subtitle: "Transcribe audio via Groq API and convert to SRT format.",
                 apiKeyLabel: "Groq API Key:",
@@ -440,16 +447,19 @@
                 const val = translations[currentLanguage][el.dataset.i18nPlaceholder];
                 if (val) el.placeholder = val;
             });
+
             document.querySelectorAll('[data-i18n-title]').forEach(el => {
                 const val = translations[currentLanguage][el.dataset.i18nTitle];
                 if (val) el.title = val;
             });
+
             updateSrtPlaceholder();
             if (uploadedAudioFile) {
                 fileNameDisplay.textContent = `${t('selectedFile')} ${uploadedAudioFile.name}`;
             }
             toggleSrtBtnText.textContent = t(isSrtVisible ? 'collapse' : 'expand');
         }
+
 
         uiLanguageToggle.addEventListener('click', () => {
             uiLanguageSelect.classList.toggle('hidden');
@@ -459,6 +469,7 @@
             currentLanguage = uiLanguageSelect.value;
             applyTranslations();
             uiLanguageSelect.classList.add('hidden');
+
         });
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -466,9 +477,11 @@
             if (storedApiKey) {
                 groqApiKeyInput.value = storedApiKey;
             }
+
             const browserLang = (navigator.language || navigator.userLanguage || '').toLowerCase();
             currentLanguage = browserLang.startsWith('zh') ? 'zh' : 'en';
             uiLanguageSelect.value = currentLanguage;
+
             applyTranslations();
         });
 
