@@ -112,6 +112,54 @@ type Segment = {
   text: string;
 };
 
+type UnknownRecord = Record<string, unknown>;
+
+function isRecord(value: unknown): value is UnknownRecord {
+  return typeof value === 'object' && value !== null;
+}
+
+function hasProperty<T extends string>(
+  value: unknown,
+  property: T,
+): value is UnknownRecord & Record<T, unknown> {
+  return isRecord(value) && property in value;
+}
+
+function extractErrorDetail(payload: unknown): string | undefined {
+  if (!hasProperty(payload, 'error')) {
+    return undefined;
+  }
+
+  const { error } = payload;
+  if (!hasProperty(error, 'message')) {
+    return undefined;
+  }
+
+  return typeof error.message === 'string' ? error.message : undefined;
+}
+
+function extractSegments(payload: unknown): Segment[] | undefined {
+  if (!hasProperty(payload, 'segments')) {
+    return undefined;
+  }
+
+  const { segments } = payload;
+  if (!Array.isArray(segments)) {
+    return undefined;
+  }
+
+  const validSegments = segments.filter((segment): segment is Segment => {
+    return (
+      isRecord(segment) &&
+      typeof segment.start === 'number' &&
+      typeof segment.end === 'number' &&
+      typeof segment.text === 'string'
+    );
+  });
+
+  return validSegments.length > 0 ? validSegments : undefined;
+}
+
 const API_KEY_STORAGE_KEY = 'groqApiKey';
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
@@ -276,9 +324,8 @@ export default function HomePage() {
         if (!response.ok) {
           let message = `${text.groqRequestFailed}: ${response.status} ${response.statusText}`;
           try {
-
-            const errorData = await response.json();
-            const detail = (errorData as any)?.error?.message;
+            const errorData = (await response.json()) as unknown;
+            const detail = extractErrorDetail(errorData);
 
             if (detail) {
               message += ` ${detail}`;
@@ -295,11 +342,9 @@ export default function HomePage() {
 
         setStatusKey('transcribing');
 
-        const transcription = await response.json();
+        const transcription = (await response.json()) as unknown;
 
-        const segments = Array.isArray((transcription as any)?.segments)
-          ? ((transcription as any).segments as Segment[])
-          : undefined;
+        const segments = extractSegments(transcription);
 
 
         if (!segments || segments.length === 0) {
