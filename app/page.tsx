@@ -276,8 +276,10 @@ export default function HomePage() {
         if (!response.ok) {
           let message = `${text.groqRequestFailed}: ${response.status} ${response.statusText}`;
           try {
+
             const errorData = await response.json();
             const detail = (errorData as any)?.error?.message;
+
             if (detail) {
               message += ` ${detail}`;
             }
@@ -292,11 +294,13 @@ export default function HomePage() {
         }
 
         setStatusKey('transcribing');
+
         const transcription = await response.json();
 
         const segments = Array.isArray((transcription as any)?.segments)
           ? ((transcription as any).segments as Segment[])
           : undefined;
+
 
         if (!segments || segments.length === 0) {
           setErrorMessage(text.groqResponseInvalid);
