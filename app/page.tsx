@@ -112,47 +112,6 @@ type Segment = {
   text: string;
 };
 
-type GroqErrorResponse = {
-  error?: {
-    message?: string;
-  };
-};
-
-type GroqTranscriptionResponse = {
-  segments?: Segment[];
-};
-
-function extractErrorMessage(payload: unknown): string | undefined {
-  if (!payload || typeof payload !== 'object') {
-    return undefined;
-  }
-
-  const candidate = payload as GroqErrorResponse;
-  const message = candidate.error?.message;
-  return typeof message === 'string' ? message : undefined;
-}
-
-function extractSegments(payload: unknown): Segment[] | undefined {
-  if (!payload || typeof payload !== 'object') {
-    return undefined;
-  }
-
-  const candidate = payload as GroqTranscriptionResponse;
-  if (!Array.isArray(candidate.segments)) {
-    return undefined;
-  }
-
-  const validSegments = candidate.segments.filter(
-    (segment): segment is Segment =>
-      !!segment &&
-      typeof segment.start === 'number' &&
-      typeof segment.end === 'number' &&
-      typeof segment.text === 'string',
-  );
-
-  return validSegments.length > 0 ? validSegments : undefined;
-}
-
 const API_KEY_STORAGE_KEY = 'groqApiKey';
 const GROQ_ENDPOINT = 'https://api.groq.com/openai/v1/audio/transcriptions';
 
@@ -317,8 +276,10 @@ export default function HomePage() {
         if (!response.ok) {
           let message = `${text.groqRequestFailed}: ${response.status} ${response.statusText}`;
           try {
-            const errorData: unknown = await response.json();
-            const detail = extractErrorMessage(errorData);
+
+            const errorData = await response.json();
+            const detail = (errorData as any)?.error?.message;
+
             if (detail) {
               message += ` ${detail}`;
             }
@@ -333,9 +294,13 @@ export default function HomePage() {
         }
 
         setStatusKey('transcribing');
-        const transcription: unknown = await response.json();
 
-        const segments = extractSegments(transcription);
+        const transcription = await response.json();
+
+        const segments = Array.isArray((transcription as any)?.segments)
+          ? ((transcription as any).segments as Segment[])
+          : undefined;
+
 
         if (!segments || segments.length === 0) {
           setErrorMessage(text.groqResponseInvalid);

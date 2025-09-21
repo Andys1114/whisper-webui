@@ -1,11 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  /**
-   * Export the application as fully static assets so Cloudflare Pages can
-   * locate the generated `out` directory after `next build` finishes.
-   */
-  output: 'export',
+
+  reactStrictMode: true
+
 };
 
 export default nextConfig;
